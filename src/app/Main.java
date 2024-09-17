@@ -1,8 +1,8 @@
 package app;
 
 import courses.Course;
-import courses.CourseCreator;
-import courses.CourseManager;
+import courses.CourseBuilder;
+import courses.CourseDirector;
 import enrollment.EnrollStudent;
 import enrollment.Base;
 import exports.ExportService;
@@ -14,11 +14,10 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        ExportService exportService = new JsonExportService();
+        ExportService exportService = new JsonExportService(); // Structural Pattern: Adapter
         Student student = new Student("Alice", "1001");
 
-        CourseCreator courseCreator = new CourseCreator();
-        CourseManager courseManager = new CourseManager(courseCreator);
+        CourseBuilder courseBuilder = new CourseBuilder();
 
         System.out.println("1. Enroll in Course");
         System.out.println("2. Complete Course");
@@ -31,11 +30,11 @@ public class Main {
                 int courseType = scanner.nextInt();
                 Course course;
                 if (courseType == 1) {
-                    course = courseManager.constructOnlineCourse("CS101", "Intro to CS");
+                    course = CourseDirector.constructOnlineCourse(courseBuilder, "CS101", "Intro to CS");
                 } else {
                     System.out.println("Enter location for the onsite course: ");
                     String location = scanner.next();
-                    course = courseManager.constructOnsiteCourse("CS101", "Intro to CS", location);
+                    course = CourseDirector.constructOnsiteCourse(courseBuilder, "CS101", "Intro to CS", location);
                 }
 
                 Base enrollCommand = new EnrollStudent(student, course);
@@ -44,7 +43,7 @@ public class Main {
             case 2:
                 System.out.println("Enter grade for the course: ");
                 double grade = scanner.nextDouble();
-                student.completeCourse(courseCreator.build(), grade);  // Complete the course using builder
+                student.completeCourse(courseBuilder.build(), grade);  // Complete the course using builder
                 break;
             case 3:
                 String transcript = exportService.exportTranscript(student.getTranscript());
